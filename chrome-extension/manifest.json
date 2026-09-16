@@ -1,0 +1,38 @@
+{
+  "manifest_version": 3,
+  "name": "JPDF — 이미지 ↔ PDF 무손실 변환",
+  "short_name": "JPDF",
+  "version": "1.0.0",
+  "description": "JPG/PNG를 재인코딩 없이 PDF/JPDF로 묶고, .jpdf를 PDF로 보거나 원본 이미지로 다시 꺼냅니다. 모든 처리는 브라우저 안에서만 이루어집니다.",
+  "minimum_chrome_version": "116",
+  "icons": {
+    "16": "icons/16.png",
+    "32": "icons/32.png",
+    "48": "icons/48.png",
+    "128": "icons/128.png"
+  },
+  "action": {
+    "default_title": "JPDF 열기 (이미지 ↔ PDF)",
+    "default_icon": {
+      "16": "icons/16.png",
+      "32": "icons/32.png",
+      "48": "icons/48.png",
+      "128": "icons/128.png"
+    }
+  },
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "permissions": [
+    "contextMenus",
+    "downloads",
+    "scripting",
+    "activeTab",
+    "storage",
+    "notifications"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ]
+}

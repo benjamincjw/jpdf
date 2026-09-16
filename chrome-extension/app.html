@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <title>JPDF — 이미지 ↔ PDF</title>
+  <link rel="stylesheet" href="app.css">
+</head>
+<body>
+  <header class="top">
+    <img src="icons/48.png" alt="" width="28" height="28">
+    <h1>JPDF <span class="sub">이미지 ↔ PDF 무손실 변환 · 모든 처리는 이 브라우저 안에서만</span></h1>
+    <nav class="tabs" role="tablist">
+      <button class="tab active" data-tab="convert" role="tab">이미지 → PDF / JPDF</button>
+      <button class="tab" data-tab="open" role="tab">JPDF / PDF 열기</button>
+    </nav>
+  </header>
+
+  <!-- ============ 변환 ============ -->
+  <main id="panel-convert" class="panel active">
+    <section id="collect-box" class="card hidden">
+      <h2>페이지에서 모은 이미지 <span id="collect-title" class="muted"></span></h2>
+      <p class="muted">가져올 이미지를 고르세요. 작은 아이콘은 기본으로 빠져 있습니다.</p>
+      <div id="collect-grid" class="grid"></div>
+      <div class="row">
+        <button id="collect-all" class="btn">모두 선택</button>
+        <button id="collect-none" class="btn">모두 해제</button>
+        <button id="collect-import" class="btn primary">선택한 이미지 가져오기</button>
+        <span id="collect-status" class="muted"></span>
+      </div>
+    </section>
+
+    <div class="two-col">
+      <section class="card">
+        <div id="drop-images" class="drop">
+          <input id="file-images" type="file" multiple accept="image/*,.jpg,.jpeg,.png,.gif,.bmp,.webp,.avif,.tif,.tiff">
+          <p><strong>이미지를 여기에 끌어다 놓거나</strong> 클릭해서 선택하세요.</p>
+          <p class="muted">JPEG·PNG는 재인코딩 없이 그대로 들어갑니다. GIF·WebP·BMP 등은 브라우저로 디코딩해 무손실(Flate)로 저장합니다.</p>
+        </div>
+        <ol id="image-list" class="list"></ol>
+        <div class="row">
+          <button id="btn-clear" class="btn">비우기</button>
+          <button id="btn-sort" class="btn">이름순 정렬</button>
+          <span id="count" class="muted"></span>
+        </div>
+      </section>
+
+      <section class="card options">
+        <h2>출력 옵션</h2>
+        <label class="opt">형식
+          <span class="radios">
+            <label><input type="radio" name="fmt" value="jpdf" checked> JPDF (.jpdf)</label>
+            <label><input type="radio" name="fmt" value="pdf"> PDF (.pdf)</label>
+          </span>
+        </label>
+        <label class="opt">페이지
+          <select id="opt-page">
+            <option value="image">이미지 크기 그대로</option>
+            <option value="A4">A4</option><option value="A3">A3</option><option value="A5">A5</option>
+            <option value="B5">B5</option><option value="Letter">Letter</option><option value="Legal">Legal</option>
+          </select>
+        </label>
+        <label class="opt">방향
+          <select id="opt-orient" disabled>
+            <option value="auto">자동 (이미지에 맞춤)</option><option value="portrait">세로</option><option value="landscape">가로</option>
+          </select>
+        </label>
+        <label class="opt">여백 (mm) <input id="opt-margin" type="number" min="0" max="100" step="1" value="0"></label>
+        <label class="opt">기본 DPI <input id="opt-dpi" type="number" min="10" max="2400" step="1" value="96"></label>
+        <label class="chk"><input id="opt-usedpi" type="checkbox" checked> 이미지에 저장된 DPI 사용 (없으면 기본 DPI)</label>
+        <label class="chk"><input id="opt-upscale" type="checkbox" checked disabled> 작은 이미지도 페이지에 맞게 확대</label>
+        <label class="chk"><input id="opt-embed" type="checkbox"> 원본 파일을 첨부파일로도 포함 (용량 ≈ 2배, 메타데이터 완전 보존)</label>
+        <label class="opt">파일 이름 <input id="opt-name" type="text" placeholder="자동"></label>
+        <div class="row">
+          <button id="btn-convert" class="btn primary big">변환</button>
+          <progress id="prog" max="1" value="0" class="hidden"></progress>
+        </div>
+        <p id="status" class="status"></p>
+        <div id="result" class="row hidden">
+          <a id="dl-link" class="btn primary" download>다운로드</a>
+          <button id="btn-view-pdf" class="btn">새 탭에서 PDF로 보기</button>
+          <button id="btn-open-result" class="btn">열기 탭에서 확인</button>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- ============ 열기 ============ -->
+  <main id="panel-open" class="panel">
+    <section class="card">
+      <div id="drop-pdf" class="drop">
+        <input id="file-pdf" type="file" accept=".jpdf,.pdf,application/pdf">
+        <p><strong>.jpdf 또는 .pdf 파일을 여기에 끌어다 놓거나</strong> 클릭해서 선택하세요.</p>
+        <p class="muted">.jpdf는 그 자체로 PDF입니다. 안에 든 원본 이미지를 바이트/픽셀 그대로 다시 꺼낼 수 있습니다.</p>
+      </div>
+      <div id="pdf-info" class="info hidden">
+        <div>
+          <div id="pdf-name" class="name"></div>
+          <div id="pdf-summary" class="muted"></div>
+          <div id="pdf-images" class="muted small"></div>
+        </div>
+        <div class="row">
+          <button id="btn-show-pdf" class="btn primary">PDF로 보기</button>
+          <button id="btn-show-images" class="btn primary">이미지로 보기</button>
+          <button id="btn-newtab-pdf" class="btn">새 탭에서 PDF 열기</button>
+          <a id="dl-pdf" class="btn" download>.pdf로 저장</a>
+          <button id="btn-zip" class="btn">이미지 모두 ZIP으로 저장</button>
+        </div>
+      </div>
+    </section>
+    <section id="view-pdf" class="card viewer hidden">
+      <iframe id="pdf-frame" title="PDF"></iframe>
+    </section>
+    <section id="view-images" class="card hidden">
+      <p id="images-status" class="muted"></p>
+      <div id="gallery" class="gallery"></div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <span>JPDF 1.0 · 파일은 서버로 전송되지 않습니다.</span>
+    <a href="https://github.com/benjamincjw/jpdf" target="_blank" rel="noopener">형식 설명 · 소스</a>
+  </footer>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
